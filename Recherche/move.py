@@ -1,4 +1,5 @@
 import pypot.dynamixel
+from time import sleep
 
 def rotate(motors, x, theta):
     """ This function takes a linear and angular speed and moves the robot accordinglyself.
@@ -22,13 +23,19 @@ def set_motors_speeds(motors, left_speed, right_speed):
 def set_motor_ids(motors, current_left_motor_id, current_right_motor_id):
     motors.change_id({current_left_motor_id:left_motor_id, current_right_motor_id:right_motor_id})
 
-def test():
+def test(x=1000, t=1):
     port = "/dev/ttyACM0"
     dxl_io = pypot.dynamixel.DxlIO(port)
     dxl_io.set_wheel_mode([left_motor_id, right_motor_id])
-    rotate(dxl_io, 100, 1)
+    rotate(dxl_io, x, t)
     sleep(3)
-    rotate(dxl_io, 100, 1)
+    rotate(dxl_io, x, -t)
     sleep(3)
+    rotate(dxl_io, 0, 0)
+    dxl_io.set_joint_mode([left_motor_id, right_motor_id])
+
+def stop():
+    port = "/dev/ttyACM0"
+    dxl_io = pypot.dynamixel.DxlIO(port)
     rotate(dxl_io, 0, 0)
     dxl_io.set_joint_mode([left_motor_id, right_motor_id])
