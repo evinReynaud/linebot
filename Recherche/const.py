@@ -10,5 +10,5 @@ wheel_radius = 26
 rpm_correction = 1.339
 
 # Internal motor IDs
-left_motor_id = 1
-right_motor_id = 2
+left_motor_id = 2
+right_motor_id = 1
