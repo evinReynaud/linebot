@@ -103,20 +103,22 @@ while(True):
         c2 = min(contours, key=cv2.contourArea)
 
         # determine the most extreme points along the contours
-        extLeft1 = tuple(c1[c1[:, :, 0].argmin()][0])
+        #extLeft1 = tuple(c1[c1[:, :, 0].argmin()][0])
         extRight1 = tuple(c1[c1[:, :, 0].argmax()][0])
-        extLeft2 = tuple(c2[c2[:, :, 0].argmin()][0])
+        #extLeft2 = tuple(c2[c2[:, :, 0].argmin()][0])
         extRight2 = tuple(c2[c2[:, :, 0].argmax()][0])
+
+        Ang = np.cos(np.pi/4)
 
         cimg = cv2.drawContours(crop_img, contours, -1, (0,255,0), 2)
         # compute the distance between the points (x1, y1) and (x2, y2)
         #dist1 = math.sqrt( ((extLeft1[0]-extRight1[0])**2)+((extLeft1[1]-extRight1[1])**2) )
         #dist2 = math.sqrt( ((extLeft2[0]-extRight2[0])**2)+((extLeft2[1]-extRight2[1])**2) )
-        Angle1 = np.arctan2( extLeft1[1]-extRight1[1], extLeft1[0]-extRight1[0] )
-        Angle2 = np.arctan2( extLeft2[1]-extRight2[1], extLeft2[0]-extRight2[0] )
+        #Angle1 = np.arctan2( extLeft1[1]-extRight1[1]*Ang, extLeft1[0]-extRight1[0]*Ang )
+        #Angle2 = np.arctan2( extLeft2[1]-extRight2[1]*Ang, extLeft2[0]-extRight2[0]*Ang )
 
         # draw lines
-        cv2.line(cimg, extLeft1, extRight1, (255,0,0), 1)
+        #cv2.line(cimg, extLeft1, extRight1, (255,0,0), 1)
         cv2.line(cimg, extLeft2, extRight2, (255,0,0), 1)
 
         # draw the distance text
@@ -124,8 +126,8 @@ while(True):
         fontScale = 0.5
         fontColor = (255,255,255)
         lineType = 1
-        cv2.putText(cimg,str(Angle1),(140,150),font, fontScale, fontColor, lineType)
-        cv2.putText(cimg,str(Angle2),(280,150),font, fontScale, fontColor, lineType)
+        #cv2.putText(cimg,str(Angle1),(140,150),font, fontScale, fontColor, lineType)
+        #cv2.putText(cimg,str(Angle2),(280,150),font, fontScale, fontColor, lineType)
     else:
         print("I don't see the line")
 
