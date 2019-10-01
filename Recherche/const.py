@@ -4,8 +4,7 @@
 robot_radius = 100
 
 # Wheel radius
-radius = 260
+wheel_radius = 26
 
 # Rpm Correction
 rpm_correction = 1.339
-
