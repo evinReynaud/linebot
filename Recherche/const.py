@@ -1,4 +1,4 @@
-## Robot settings
+# Robot settings
 
 # Robot radius
 robot_radius = 100
