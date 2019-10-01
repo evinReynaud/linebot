@@ -1,5 +1,6 @@
 import pypot.dynamixel
 from time import sleep
+import numpy as np
 
 def rotate(motors, x, theta):
     """ This function takes a linear and angular speed and moves the robot accordinglyself.
