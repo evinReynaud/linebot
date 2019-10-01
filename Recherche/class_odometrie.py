@@ -23,7 +23,7 @@ class odometrie():
         self.position_y=0
         self.theta = 0
     
-    def tick_odom(self.position_x,self.position_y,self.theta,delta_x,delta_y,delta_theta):
+    def tick_odom(self,delta_x,delta_y,delta_theta):
         self.position_x = self.position_x + delta_x
         self.position_y = self.position_y + delta_y
         self.theta = self.theta + delta_theta
