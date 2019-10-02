@@ -22,7 +22,7 @@ def rotate(motors, linear_speed, angular_speed):
         theta: angular speed in rad/s
     """
     speed_right, speed_left = FK(linear_speed, angular_speed)
-    print(left_speed, right_speed)
+    print(speed_left, speed_right)
     set_motors_speeds(motors, speed_left, speed_right)
 
 
@@ -43,9 +43,9 @@ def set_motor_ids(motors, current_left_motor_id, current_right_motor_id):
 
 def get_linear_angular_speed(position_x, position_y, position_theta, x_target, y_target):
 
-    if (position_y > y_target)  # see if target is at my right or my left
+    if (position_y > y_target):  # see if target is at my right or my left
         signe = 1  # right
-    else
+    else:
         signe = -1  # left
 
     angular_speed = signe * math.atan2(x_target - position_x,
