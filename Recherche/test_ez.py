@@ -47,8 +47,6 @@ def Change_color(img,color):
     return new_mask
 
 
-
-
 # Basic Correction function to change the orientation of the robot
 def Correction(motors, error):
 	if error < 0:

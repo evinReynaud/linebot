@@ -1,5 +1,5 @@
 import pypot.dynamixel
-import const.py as const
+import const
 from time import sleep
 import numpy as np
 import math
