@@ -1,5 +1,5 @@
 import pypot.dynamixel
-import const.py as const
+import const
 from time import sleep
 import numpy as np
 
@@ -23,7 +23,7 @@ def rotate(motors, x, theta):
     left_speed = (x + theta*const.robot_radius)/const.wheel_radius
     right_speed = (x - theta*const.robot_radius)/const.wheel_radius
     print(left_speed, right_speed)
-    set_motors_speeds(motors, left_speed, right_speed)
+    set_motors_speeds(motors, left_speed, -right_speed)
 
 
 def set_motors_speeds(motors, left_speed, right_speed):
