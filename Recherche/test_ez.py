@@ -1,7 +1,9 @@
 import numpy as np
 import cv2
+import pypot.dynamixel
 import math
 import move
+import time
 import const
 import time
 
@@ -28,7 +30,7 @@ t = 0
 dt = 0.001
 port = "/dev/ttyACM0"
 dxl_io = pypot.dynamixel.DxlIO(port)
-dxl_io.set_wheel_mode([left_motor_id, right_motor_id])
+dxl_io.set_wheel_mode([2, 1])
 
 # Detect green_flag
 green_flag = False
@@ -98,7 +100,7 @@ while(True):
     Kern = np.ones((3,3), np.uint8)
     red_line = cv2.erode(red, Kern, iterations=5)
     red_line = cv2.dilate(red_line, Kern, iterations=9)
-    cnts, hierarchy = cv2.findContours(red_line.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    img, cnts, hierarchy = cv2.findContours(red_line.copy(),cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     #Suppose we only have one big contour to play with
     if len(cnts) > 0:
@@ -121,17 +123,28 @@ while(True):
     	cv2.putText(crop_img,str(ang), (10,40), cv2.FONT_HERSHEY_SIMPLEX,1, (0,0,255), 2)
     	cv2.putText(crop_img,str(error), (10,320), cv2.FONT_HERSHEY_SIMPLEX,1, (255,0,0), 2)
     	cv2.line(crop_img, (int(x_min), int(y_min)), (halfway, int(y_min)), (255,0,0), 3)
-
     	Rad_Angle = math.radians(ang)
+<<<<<<< HEAD
+    	error_angle = math.radians(error/4)
+    	move.rotate(dxl_io,1000, dt*Rad_Angle)
+    	Correction(dxl_io, dt*error_angle)
+    	time.sleep(dt)
+=======
 		err = math.radians(error/4)
         rotate(dxl_io, 300,dt*err + dt*Rad_Angle)
         time.sleep(dt)
+>>>>>>> ce5c36cad41c5be65dfc3544a01fe047bc8741a7
     	print(error, ang)
     else:
     	print("I don't see a line")
     	Look_for_line(dxl_io)
+    	time.sleep(dt)
     #Display the resulting frame
     #cv2.imshow('frame',crop_img)
+    if cv2.waitKey(20) & 0xFF == ord('k'):
+        move.stop()
+        break
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 

@@ -8,7 +8,7 @@ import math
 
 
 def FK(linear_speed, angular_speed):
-    speed_right = (linear_speed + angular_speed *
+    speed_right = -(linear_speed + angular_speed *
                    const.robot_radius)/const.wheel_radius # rad/s
     speed_left = (linear_speed - angular_speed *
                   const.robot_radius)/const.wheel_radius # rad/s
@@ -23,7 +23,7 @@ def rotate(motors, linear_speed, angular_speed):
     """
     speed_right, speed_left = FK(linear_speed, angular_speed)
     print(speed_left, speed_right)
-    set_motors_speeds(motors, speed_left, speed_right)
+    set_motors_speeds(motors, speed_left/const.rpm_correction, speed_right/const.rpm_correction)
 
 
 def set_motors_speeds(motors, speed_left, speed_right):
@@ -43,13 +43,22 @@ def set_motor_ids(motors, current_left_motor_id, current_right_motor_id):
 
 def get_linear_angular_speed(position_x, position_y, position_theta, x_target, y_target):
 
-    if (position_y > y_target):  # see if target is at my right or my left
-        signe = 1  # right
-    else:
-        signe = -1  # left
+    if (x_target < position_x):  # target left
+        beta = math.pi
+    else:  # target right
+        beta = 0
 
-    angular_speed = signe * math.atan2(x_target - position_x,
-                                       y_target - position_y)/const.delta_t
+    beta += math.atan2(y_target - position_y,
+                       x_target - position_x)
+
+    i = beta - position_theta
+
+    if (i > math.pi):
+        i -= 2*math.pi
+    if (i > -2*math.pi):
+        i += 2*math.pi
+
+    angular_speed = i/const.delta_t
 
     linear_speed = math.sqrt((x_target - position_x)*(x_target-position_x) +
                              (y_target-position_y)*(y_target-position_y)) / const.delta_t
