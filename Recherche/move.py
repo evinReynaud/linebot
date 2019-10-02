@@ -9,10 +9,10 @@ import math
 
 def FK(linear_speed, angular_speed):
     speed_right = (linear_speed + angular_speed *
-                   const.robot_radius)/const.wheel_radius
+                   const.robot_radius)/const.wheel_radius # rad/s
     speed_left = (linear_speed - angular_speed *
-                  const.robot_radius)/const.wheel_radius
-    return speed_right, speed_left  # rad/s
+                  const.robot_radius)/const.wheel_radius # rad/s
+    return speed_right*60/(2*math.pi), speed_left*60/(2*math.pi) # rpm
 
 
 def rotate(motors, linear_speed, angular_speed):
