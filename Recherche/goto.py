@@ -122,7 +122,7 @@ class Goto(object):
             self.rotate(self.linear_speed, self.angular_speed)
             self.odom(self.linear_speed, self.angular_speed, self.delta_t)
             self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
-            if (self.distance < 0.1):
+            if (self.distance < 0.01):
                 self.avance =False
         self.stop()
 
