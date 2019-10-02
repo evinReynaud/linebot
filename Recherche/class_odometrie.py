@@ -8,7 +8,7 @@ class odometrie():
         self.position_x = 0
         self.position_y = 0
         self.theta = 0
-        self.delta_t = 0.005  # in second
+        self.delta_t = const.delta_t
 
     # direct kinematics
     # speed_right and left in rad/s

@@ -12,3 +12,6 @@ rpm_correction = 1.339
 # Internal motor IDs
 left_motor_id = 2
 right_motor_id = 1
+
+
+delta_t = 0.005

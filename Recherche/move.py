@@ -15,26 +15,25 @@ def FK(linear_speed, angular_speed):
     return speed_right, speed_left  # rad/s
 
 
-def rotate(motors, x, theta):
+def rotate(motors, linear_speed, angular_speed):
     """ This function takes a linear and angular speed and moves the robot accordinglyself.
     Input
         x: linear speed in mm/s
         theta: angular speed in rad/s
     """
-    left_speed = (x + theta*const.robot_radius)/const.wheel_radius
-    right_speed = (x - theta*const.robot_radius)/const.wheel_radius
+    speed_right, speed_left = FK(linear_speed, angular_speed)
     print(left_speed, right_speed)
-    set_motors_speeds(motors, left_speed, right_speed)
+    set_motors_speeds(motors, speed_left, speed_right)
 
 
-def set_motors_speeds(motors, left_speed, right_speed):
+def set_motors_speeds(motors, speed_left, speed_right):
     """
     motors: pyplot.dynamixel.DxlIO
     left_speed: rad/s
     """
     # motors.set_wheel_mode([left_motor_id, right_motor_id])
     motors.set_moving_speed(
-        {const.left_motor_id: left_speed/const.rpm_correction, const.right_motor_id: right_speed/const.rpm_correction})
+        {const.left_motor_id: speed_left/const.rpm_correction, const.right_motor_id: speed_right/const.rpm_correction})
 
 
 def set_motor_ids(motors, current_left_motor_id, current_right_motor_id):
@@ -42,7 +41,7 @@ def set_motor_ids(motors, current_left_motor_id, current_right_motor_id):
                       current_right_motor_id: const.right_motor_id})
 
 
-def get_angle_dist_target(position_x, position_y, position_theta, x_target, y_target, x_theta):
+def get_linear_angular_speed(position_x, position_y, position_theta, x_target, y_target):
 
     if(position_y > y_target)  # see if target is at my right or my left
     {
@@ -53,12 +52,13 @@ def get_angle_dist_target(position_x, position_y, position_theta, x_target, y_ta
         signe = -1  # left
     }
 
-    angle = signe * math.atan2(x_target-position_x, y_target-position_y)
+    angular_speed = signe * math.atan2(x_target-position_x,
+                                       y_target-position_y)/const.delta_t
 
-    dist_cible = math.sqrt((x_target - position_x)*(x_target-position_x) +
-                           (y_target-position_y)*(y_target-position_y))
+    linear_speed = math.sqrt((x_target - position_x)*(x_target-position_x) +
+                             (y_target-position_y)*(y_target-position_y)) / const.delta_t
 
-    return angle, dist_cible
+    return linear_speed, angular_speed
 
 
 def test(x=500, t=2):
