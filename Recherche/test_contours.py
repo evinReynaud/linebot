@@ -5,8 +5,8 @@ import math
 
 # Get Video feedback from webcam
 video_capture = cv2.VideoCapture(1) # -1 for random
-#video_capture.set(3, 400)
-#video_capture.set(4, 300)
+video_capture.set(3, 400)
+video_capture.set(4, 300)
  
 # Upper bounds defines, TODO :: define it in a better way
 low_red = np.array([0,0,100])
@@ -107,6 +107,9 @@ while(True):
         extRight1 = tuple(c1[c1[:, :, 0].argmax()][0])
         #extLeft2 = tuple(c2[c2[:, :, 0].argmin()][0])
         extRight2 = tuple(c2[c2[:, :, 0].argmax()][0])
+
+        exts = (extRight1 + extRight2)/2
+        
 
         Ang = np.cos(np.pi/4)
 
