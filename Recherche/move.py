@@ -1,5 +1,5 @@
 import pypot.dynamixel
-import const.py as const
+import const
 from time import sleep
 import numpy as np
 import math
@@ -9,10 +9,10 @@ import math
 
 def FK(linear_speed, angular_speed):
     speed_right = (linear_speed + angular_speed *
-                   const.robot_radius)/const.wheel_radius
+                   const.robot_radius)/const.wheel_radius # rad/s
     speed_left = (linear_speed - angular_speed *
-                  const.robot_radius)/const.wheel_radius
-    return speed_right, speed_left  # rad/s
+                  const.robot_radius)/const.wheel_radius # rad/s
+    return speed_right*60/(2*math.pi), speed_left*60/(2*math.pi) # rpm
 
 
 def rotate(motors, linear_speed, angular_speed):
@@ -23,7 +23,7 @@ def rotate(motors, linear_speed, angular_speed):
     """
     speed_right, speed_left = FK(linear_speed, angular_speed)
     print(speed_left, speed_right)
-    set_motors_speeds(motors, speed_left, speed_right)
+    set_motors_speeds(motors, speed_left, -speed_right)
 
 
 def set_motors_speeds(motors, speed_left, speed_right):

@@ -13,5 +13,5 @@ rpm_correction = 1.339
 left_motor_id = 2
 right_motor_id = 1
 
-
+#Time stamp
 delta_t = 0.005
