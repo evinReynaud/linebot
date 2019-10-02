@@ -43,17 +43,13 @@ def set_motor_ids(motors, current_left_motor_id, current_right_motor_id):
 
 def get_linear_angular_speed(position_x, position_y, position_theta, x_target, y_target):
 
-    if(position_y > y_target)  # see if target is at my right or my left
-    {
+    if (position_y > y_target)  # see if target is at my right or my left
         signe = 1  # right
-    }
     else
-    {
         signe = -1  # left
-    }
 
-    angular_speed = signe * math.atan2(x_target-position_x,
-                                       y_target-position_y)/const.delta_t
+    angular_speed = signe * math.atan2(x_target - position_x,
+                                       y_target - position_y)/const.delta_t
 
     linear_speed = math.sqrt((x_target - position_x)*(x_target-position_x) +
                              (y_target-position_y)*(y_target-position_y)) / const.delta_t
