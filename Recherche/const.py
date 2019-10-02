@@ -2,7 +2,7 @@ import math
 # Robot settings
 
 # Robot radius in meter
-robot_radius = 100
+robot_radius = 0.04
 
 # Wheel radius in meter
 wheel_radius = 0.026
