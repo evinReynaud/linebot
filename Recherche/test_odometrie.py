@@ -18,4 +18,3 @@ while(true):
     dxl_io.get_moving_speed({1})
     dxl_io.get_moving_speed({2})
   t += const.delta_x
-    
