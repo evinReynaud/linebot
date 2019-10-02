@@ -1,4 +1,4 @@
-import class_odometrie as co
+import class_odometrie.py as co
 import pypot.dynamixel
 import const.py as const
 import numpy
