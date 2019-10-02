@@ -29,12 +29,15 @@ port = "/dev/ttyACM0"
 dxl_io = pypot.dynamixel.DxlIO(port)
 dxl_io.set_wheel_mode([left_motor_id, right_motor_id])
 
-
+# Basic Correction function to change the orientation of the robot
 def Correction(motors, error):
 	if error < 0:
 		rotate(motors, x=50, t=-np.pi/4)
 	else
 		rotate(motors, x=50, t=np.pi/4)
+
+def Look_for_line(motors):
+	rotate(motors, x= 0, t =np.pi/3)
 
 while(True):
     ret, frame = video_capture.read()
@@ -44,6 +47,7 @@ while(True):
     #mask_green = cv2.inRange(crop_img, low_green, upper_green)
     #mask_green_rgb = cv2.cvtColor(mask_green, cv2.COLOR_GRAY2BGR)
     red = cv2.inRange(crop_img, low_red, upper_red)
+
     Kern = np.ones((3,3), np.uint8)
     red_line = cv2.erode(red, Kern, iterations=5)
     red_line = cv2.dilate(red_line, Kern, iterations=9)
@@ -71,7 +75,6 @@ while(True):
     	cv2.putText(crop_img,str(error), (10,320), cv2.FONT_HERSHEY_SIMPLEX,1, (255,0,0), 2)
     	cv2.line(crop_img, (int(x_min), int(y_min)), (halfway, int(y_min)), (255,0,0), 3)
 
-
     	Rad_Angle = math.radians(ang)
     	if np.fmod(t,6*dt) < dt:
     		if np.abs(error) > 50:
@@ -81,7 +84,7 @@ while(True):
     	print(error, ang)
     else:
     	print("I don't see a line")
-
+    	Look_for_line(dxl_io)
     #Display the resulting frame
     #cv2.imshow('frame',crop_img)
     if cv2.waitKey(1) & 0xFF == ord('q'):
