@@ -3,9 +3,10 @@ import cv2
 import math
 import move
 import const
+import time
 
 # Get Video feedback from webcam
-video_capture = cv2.VideoCapture(1) # -1 for random
+video_capture = cv2.VideoCapture(0) # -1 for random
 video_capture.set(3, 640)
 video_capture.set(4, 360)
  
@@ -29,15 +30,63 @@ port = "/dev/ttyACM0"
 dxl_io = pypot.dynamixel.DxlIO(port)
 dxl_io.set_wheel_mode([left_motor_id, right_motor_id])
 
+# Detect green_flag
+green_flag = False
+
+
+def Change_color(img,color):
+    global green_flag
+    if green_flag == False:
+        new_mask = cv2.inRange(crop_img, low_yellow, upper_yellow)
+    else:
+        if color == 1: # Blue
+            new_mask = cv2.inRange(crop_img, low_blue, upper_blue)
+        elif color == 2:
+            new_mask = cv2.inRange(crop_img, low_red, upper_red)
+
+    return new_mask
+
+
+
+
 # Basic Correction function to change the orientation of the robot
 def Correction(motors, error):
 	if error < 0:
-		rotate(motors, x=50, t=-np.pi/4)
+		rotate(motors, 50, np.pi/4)
 	else
-		rotate(motors, x=50, t=np.pi/4)
+		rotate(motors, 50, -np.pi/4)
 
 def Look_for_line(motors):
-	rotate(motors, x= 0, t =np.pi/3)
+	rotate(motors, 0, np.pi/3)
+
+def Candidate(cnts):
+    len_cnts = len(cnts)
+    if len_cnts == 1:
+        box = cv2.minAreaRect(cnts[0])
+    else:
+        candidates=[]
+        off_bottom = 0
+        for con_num in range(len_cnts):
+            box = cv2.minAreaRect(cnts[con_num])
+            (x_min,y_min), (w_min,h_min), ang = box
+            box_points = cv2.boxPoints(box)
+            (x_box, y_box) = box_points[0]
+            if y_box > 358:
+                off_bottom += 1 
+            candidates.append((y_box, con_num,x_min,y_min))
+        candidates = sorted(candidates)
+        if off_bottom > 1:
+            candidates_off_bottom = []
+            for con_num in range((len_cnts - off_bottom), len_cnts):
+                (y_highest, con_highest, x_min, y_min) = candidates[con_num]
+                total_dist = (np.abs(x_min - x_last)**2 + np.abs(y_min - y_last)**2)**0.5
+                candidates_off_bottom.append((total_dist,con_highest))
+            candidates_off_bottom = sorted(candidates_off_bottom)
+        else:
+            (y_highest, con_highest, x_min, y_min) = candidates[len_cnts - 1]
+            box = cv2.minAreaRect(cnts[con_highest])
+
+    return box
 
 while(True):
     ret, frame = video_capture.read()
@@ -55,7 +104,7 @@ while(True):
 
     #Suppose we only have one big contour to play with
     if len(cnts) > 0:
-    	red_box = cv2.minAreaRect(cnts[0])
+    	red_box = Candidate(cnts)
     	(x_min,y_min), (w_min,h_min), ang = red_box
     	if ang < - 45:
     		ang += 90
@@ -76,11 +125,9 @@ while(True):
     	cv2.line(crop_img, (int(x_min), int(y_min)), (halfway, int(y_min)), (255,0,0), 3)
 
     	Rad_Angle = math.radians(ang)
-    	if np.fmod(t,6*dt) < dt:
-    		if np.abs(error) > 50:
-    			Correction(dxl_io, error)
-    		else:
-    			rotate(dxl_io, x=30, t=Rad_Angle)
+		err = math.radians(error/4)
+        rotate(dxl_io, 300,dt*err + dt*Rad_Angle)
+        time.sleep(dt)
     	print(error, ang)
     else:
     	print("I don't see a line")
