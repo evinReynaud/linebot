@@ -21,3 +21,18 @@ delta_t = 0.05
 x_target = 0.5
 y_target = 0.8
 theta_target = math.pi/2
+
+# Correction Coefficient of linear_speed
+linear_speed_correction = 5
+
+# Correction Coefficient of angular_speed
+
+angular_speed_correction = 0.3
+
+# Linear_speed_max
+
+linear_speed_max = 500
+
+# Angular_speed_max 
+
+angular_speed_max = math.pi/3
