@@ -34,7 +34,7 @@ class odometrie():
         delta_y = linear_speed * delta_t * math.sin(delta_theta)
         return delta_x, delta_y, delta_theta
 
-    def odom3(self, speed_rigth, speed_left):
+    def odom3(self, speed_rigth, speed_left, delta_t):
         vr = -const.wheel_radius*speed_rigth
         vl = const.wheel_radius*speed_left
         linear_speed = (vl+vr)/2
