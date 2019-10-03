@@ -48,9 +48,13 @@ class Goto(object):
         elif (i < -math.pi):
             i += 2*math.pi
 
-        angular_speed = i * 0.3
+        angular_speed = i*const.angular_correction
+        if angular_speed > const.angular_speed_max:
+            angular_speed = const.angular_speed_max
         self.distance = math.sqrt((x_target - position_x)*(x_target - position_x)+(y_target-position_y)*(y_target-position_y))
-        linear_speed = self.distance * 0.3
+        linear_speed = self.distance*const.linear_correction
+        if linear_speed > const.linear_speed_max:
+            linear_speed = const.linear_speed_max
         self.linear_speed = linear_speed
         self.angular_speed = angular_speed
 
