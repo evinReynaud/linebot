@@ -26,14 +26,17 @@ class Goto(object):
             pypot.dynamixel.get_available_ports()[0])
 
     def DK(self, speed_rigth, speed_left):
-        self.linear_speed = const.wheel_radius*(speed_left-speed_rigth)/2
-        self.angular_speed = const.wheel_radius * \
-            (speed_rigth + speed_left)/(2*const.robot_radius)
+        vr = -const.wheel_radius*speed_rigth
+        vl = const.wheel_radius*speed_left
+        linear_speed = (vl+vr)/2
+        angular_speed = (vr-vl)/(2*const.robot_radius)
+        return linear_speed, angular_speed
 
     def odom(self, linear_speed, angular_speed, delta_t):
-        self.delta_theta = angular_speed * delta_t
-        self.delta_x = linear_speed * delta_t * math.cos(self.delta_theta)
-        self.delta_y = linear_speed * delta_t * math.sin(self.delta_theta)
+        delta_x = linear_speed * delta_t * math.cos(self.position_theta)
+        delta_y = linear_speed * delta_t * math.sin(self.position_theta)
+        delta_theta = angular_speed * delta_t
+        return delta_x, delta_y, delta_theta
 
     def tick_odom(self, delta_x, delta_y, delta_theta):
         self.position_x = self.position_x + delta_x
@@ -132,9 +135,9 @@ class Goto(object):
                 self.odom(self.linear_speed, self.angular_speed, self.delta_t)
                 self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
                 print(self.distance)
-            if (abs(i) < math.pi/32):
-                self.avance = False
-                self.stop()
+                if (abs(i) < math.pi/32):
+                    self.avance = False
+                    self.stop()
         self.avance = True
 
     def run(self):
@@ -152,9 +155,9 @@ class Goto(object):
                 self.odom(self.linear_speed, self.angular_speed, self.delta_t)
                 self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
                 print(self.distance)
-            if (self.distance < 0.02):
-                self.avance = False
-                self.stop()
+                if (self.distance < 0.02):
+                    self.avance = False
+                    self.stop()
         self.avance = True
         i = const.theta_target - self.position_theta
 
