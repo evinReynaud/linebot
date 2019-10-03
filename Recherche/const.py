@@ -15,7 +15,7 @@ left_motor_id = 2
 right_motor_id = 1
 
 # Time stamp
-delta_t = 0.005
+delta_t = 0.05
 
 # target
 x_target = 0.5

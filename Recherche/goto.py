@@ -1,6 +1,7 @@
 import math
 import const
 import pypot.dynamixel
+import time
 from time import sleep
 import numpy as np
 
@@ -13,7 +14,7 @@ class Goto(object):
         self.theta_target = const.theta_target
         self.position_x = 0
         self.position_y = 0
-        self.position_theta = math.pi/2
+        self.position_theta = 0
         self.linear_speed = 0
         self.angular_speed = 0
         self.delta_x = 0
@@ -25,8 +26,7 @@ class Goto(object):
 
     def DK(self, speed_rigth, speed_left):
         linear_speed = const.wheel_radius*(speed_rigth+speed_left)/2
-        angular_speed = const.wheel_radius * \
-            (speed_left-speed_left)/(2*const.robot_radius)
+        angular_speed = const.wheel_radius *(speed_rigth-speed_left)/(2*const.robot_radius)
         return linear_speed, angular_speed
 
     def odom(self, linear_speed, angular_speed, delta_t):
@@ -62,7 +62,7 @@ class Goto(object):
 
         beta += math.atan2(y_target - position_y,
                            x_target - position_x)
-
+        beta = beta % (2*math.pi)
         i = beta - position_theta
 
         if (i > math.pi):
@@ -70,10 +70,10 @@ class Goto(object):
         elif (i < -math.pi):
             i += 2*math.pi
 
-        angular_speed = i/const.delta_t
-        self.distance = math.sqrt((x_target - position_x)*(x_target-position_x) +
+        angular_speed = i * 0.3
+        self.distance = math.sqrt((x_target - position_x)*(x_target - position_x) +
                                   (y_target-position_y)*(y_target-position_y))
-        linear_speed = self.distance / const.delta_t
+        linear_speed = self.distance * 0.3
 
         self.linear_speed = linear_speed
         self.angular_speed = angular_speed
@@ -90,7 +90,7 @@ class Goto(object):
     def rotate(self, motors, linear_speed, angular_speed):
         """ This function takes a linear and angular speed and moves the robot accordinglyself.
         Input
-            x: linear speed in mm/s
+            x: linear speed in m/s
             theta: angular speed in rad/s
         """
         speed_right, speed_left = self.FK(linear_speed, angular_speed)
@@ -113,14 +113,16 @@ class Goto(object):
         dxl_io.set_joint_mode([const.left_motor_id, const.right_motor_id])
 
     def run(self):
-
+        t = time.time()
         while self.avance:
-            self.get_linear_angular_speed(
-                self.position_x, self.position_y, self.position_theta, self.x_target, self.y_target)
-            self.rotate(self.linear_speed, self.angular_speed)
-            self.odom(self.linear_speed, self.angular_speed, self.delta_t)
-            self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
-            print(self.distance)
+            if time.time()-t > self.delta_t:
+                t = time.time()
+                self.get_linear_angular_speed(
+                    self.position_x, self.position_y, self.position_theta, self.x_target, self.y_target)
+                self.rotate(self.linear_speed, self.angular_speed)
+                self.odom(self.linear_speed, self.angular_speed, self.delta_t)
+                self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
+                print(self.distance)
             if (self.distance < 0.01):
                 self.avance = False
         self.stop()
