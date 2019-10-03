@@ -147,8 +147,8 @@ while(video_capture.isOpened()):
     cv2.imshow("avant", crop_img)
 
     #t += dt
-    # if mean_green > 70 and t > dt*10:
-    #	color_switch = True
+    if mean_green > 70 and t > dt*10:
+    	color_switch = True
 
     #print(color, mean_green)
     if cv2.waitKey(1) & 0xFF == ord('q'):
