@@ -93,7 +93,7 @@ class Goto(object):
         """
         speed_right, speed_left = self.FK(linear_speed, angular_speed)
         print(speed_left, speed_right)
-        self.set_motors_speeds(self.motors, speed_left, -speed_right)
+        self.set_motors_speeds(self.motors, speed_left, speed_right)
 
     def set_motors_speeds(self, motors, speed_left, speed_right):
         """
