@@ -23,7 +23,7 @@ def rotate(motors, linear_speed, angular_speed):
     """
     speed_right, speed_left = FK(linear_speed, angular_speed)
     print(speed_left, speed_right)
-    set_motors_speeds(motors, speed_left/const.rpm_correction, speed_right/const.rpm_correction)
+    set_motors_speeds(motors, speed_left, speed_right)
 
 
 def set_motors_speeds(motors, speed_left, speed_right):
