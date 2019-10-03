@@ -1,11 +1,11 @@
 import math
 import const
 import pypot.dynamixel
+import class_odometrie
 import time
-from time import sleep
 import numpy as np
 
-
+odom = class_odometrie.odometrie()
 class Goto(object):
 
     def __init__(self):
@@ -14,46 +14,24 @@ class Goto(object):
         self.theta_target = const.theta_target
         self.position_x = 0
         self.position_y = 0
-        self.position_theta = 0
+        self.theta = 0
         self.linear_speed = 0
         self.angular_speed = 0
-        self.delta_x = 0
-        self.delta_y = 0
-        self.delta_theta = 0
         self.delta_t = const.delta_t
         self.distance = 1000
         self.avance = True
 
-    def DK(self, speed_rigth, speed_left):
-        linear_speed = const.wheel_radius*(speed_rigth+speed_left)/2
-        angular_speed = const.wheel_radius *(speed_rigth-speed_left)/(2*const.robot_radius)
-        return linear_speed, angular_speed
-
-    def odom(self, linear_speed, angular_speed, delta_t):
-        delta_theta = angular_speed * delta_t
-        delta_x = linear_speed * delta_t * math.cos(delta_theta)
-        delta_y = linear_speed * delta_t * math.sin(delta_theta)
-        self.delta_x = delta_x
-        self.delta_y = delta_y
-        self.delta_theta = delta_theta
-        return delta_x, delta_y, delta_theta
-
     def reset(self):
         self.position_x = 0
         self.position_y = 0
-        self.position_theta = 0
+        self.theta = 0
         self.linear_speed = 0
         self.angular_speed = 0
         self.delta_x = 0
         self.delta_y = 0
         self.delta_theta = 0
 
-    def tick_odom(self, delta_x, delta_y, delta_theta):
-        self.position_x = self.position_x + delta_x
-        self.position_y = self.position_y + delta_y
-        self.position_theta = self.position_theta + delta_theta
-
-    def get_linear_angular_speed(self, position_x, position_y, position_theta, x_target, y_target):
+    def get_linear_angular_speed(self, position_x, position_y, theta, x_target, y_target):
 
         if (x_target < position_x):  # target left
             beta = math.pi
@@ -63,7 +41,7 @@ class Goto(object):
         beta += math.atan2(y_target - position_y,
                            x_target - position_x)
         beta = beta % (2*math.pi)
-        i = beta - position_theta
+        i = beta - theta
 
         if (i > math.pi):
             i -= 2*math.pi
@@ -71,8 +49,7 @@ class Goto(object):
             i += 2*math.pi
 
         angular_speed = i * 0.3
-        self.distance = math.sqrt((x_target - position_x)*(x_target - position_x) +
-                                  (y_target-position_y)*(y_target-position_y))
+        self.distance = math.sqrt((x_target - position_x)*(x_target - position_x)+(y_target-position_y)*(y_target-position_y))
         linear_speed = self.distance * 0.3
 
         self.linear_speed = linear_speed
@@ -81,10 +58,8 @@ class Goto(object):
         return linear_speed, angular_speed
 
     def FK(self, linear_speed, angular_speed):
-        speed_right = (linear_speed + angular_speed *
-                       const.robot_radius)/const.wheel_radius  # rad/s
-        speed_left = (linear_speed - angular_speed *
-                      const.robot_radius)/const.wheel_radius  # rad/s
+        speed_right = (linear_speed + angular_speed *const.robot_radius)/const.wheel_radius  # rad/s
+        speed_left = (linear_speed - angular_speed *const.robot_radius)/const.wheel_radius  # rad/s
         return speed_right*60/(2*math.pi), speed_left*60/(2*math.pi)  # rpm
 
     def rotate(self, motors, linear_speed, angular_speed):
@@ -118,17 +93,14 @@ class Goto(object):
             if time.time()-t > self.delta_t:
                 t = time.time()
                 self.get_linear_angular_speed(
-                    self.position_x, self.position_y, self.position_theta, self.x_target, self.y_target)
+                    self.position_x, self.position_y, self.theta, self.x_target, self.y_target)
                 self.rotate(self.linear_speed, self.angular_speed)
-                self.odom(self.linear_speed, self.angular_speed, self.delta_t)
-                self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
+                delta_x, delta_y,delta_theta = odom.odom(self.linear_speed, self.angular_speed, self.delta_t)
+                odom.tick_odom(delta_x,delta_y,delta_theta)
                 print(self.distance)
             if (self.distance < 0.01):
                 self.avance = False
         self.stop()
-
-
 if __name__ == '__main__':
-
     goto = Goto()
     goto.run()
