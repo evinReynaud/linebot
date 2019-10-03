@@ -85,12 +85,11 @@ class Goto(object):
             {const.left_motor_id: speed_left/const.rpm_correction, const.right_motor_id: speed_right/const.rpm_correction})
 
     def stop(self):
-        port = "/dev/ttyACM0"
-        dxl_io = pypot.dynamixel.DxlIO(port)
-        self.rotate(dxl_io, 0, 0)
-        dxl_io.set_joint_mode([const.left_motor_id, const.right_motor_id])
+        self.rotate(self.motors, 0, 0)
+        self.motors.set_joint_mode([const.left_motor_id, const.right_motor_id])
 
     def run(self):
+        seft.motors.set_wheel_mode([const.left_motor_id,const.right_motor_id])
         t = time.time()
         while self.avance:
             if time.time()-t > self.delta_t:
