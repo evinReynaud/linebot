@@ -76,11 +76,15 @@ class Goto(object):
         angular_speed = i*const.angular_speed_correction
         if angular_speed > const.angular_speed_max:
             angular_speed = const.angular_speed_max
+        if angular_speed < const.angular_speed_min:
+            angular_speed = const.angular_speed_min
         self.distance = math.sqrt(
             (x_target - position_x)*(x_target - position_x)+(y_target-position_y)*(y_target-position_y))
         linear_speed = self.distance*const.linear_speed_correction
         if linear_speed > const.linear_speed_max:
             linear_speed = const.linear_speed_max
+        if linear_speed < const.linear_speed_min:
+            linear_speed = const.linear_speed_min
         self.linear_speed = linear_speed
         self.angular_speed = angular_speed
 
@@ -125,8 +129,10 @@ class Goto(object):
                 t = time.time()
                 i = i-self.delta_theta
                 self.angular_speed = i*const.angular_speed_correction
-                if self.angular_speed > const.angular_speed_max:
-                    self.angular_speed = const.angular_speed_max
+                if angular_speed > const.angular_speed_max:
+                    angular_speed = const.angular_speed_max
+                if angular_speed < const.angular_speed_min:
+                    angular_speed = const.angular_speed_min
                 #self.get_linear_angular_speed(self.position_x, self.position_y, self.position_theta, self.x_target, self.y_target)
                 self.rotate(self.linear_speed, self.angular_speed)
                 self.odom(self.linear_speed, self.angular_speed, self.delta_t)

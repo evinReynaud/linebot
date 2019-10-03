@@ -32,7 +32,8 @@ angular_speed_correction = 0.1
 # Linear_speed_max
 
 linear_speed_max = 0.20
-
+linear_speed_min = 0.1
 # Angular_speed_max
 
 angular_speed_max = math.pi/3
+angular_speed_min = math.pi/8
