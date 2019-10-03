@@ -14,9 +14,10 @@ class odometrie():
     # speed_right and left in rad/s
 
     def DK(self, speed_rigth, speed_left):
-        linear_speed = const.wheel_radius*(speed_rigth+speed_left)/2
-        angular_speed = const.wheel_radius * \
-            (speed_left-speed_left)/(2*const.robot_radius)
+        vr = -const.wheel_radius*speed_rigth
+        vl = const.wheel_radius*speed_left
+        linear_speed = (vl+vr)/2
+        angular_speed = (vr-vl)/(2*const.robot_radius)
         return linear_speed, angular_speed
 
     # def odom(self,linear_speed,angular_speed):
@@ -34,11 +35,7 @@ class odometrie():
         delta_y = linear_speed * delta_t * math.sin(delta_theta)
         return delta_x, delta_y, delta_theta
 
-    def odom3(self, speed_rigth, speed_left, delta_t):
-        vr = -const.wheel_radius*speed_rigth
-        vl = const.wheel_radius*speed_left
-        linear_speed = (vl+vr)/2
-        angular_speed = (vr-vl)/(2*const.robot_radius)
+    def odom3(self, linear_speed, angular_speed, delta_t):
         delta_x = linear_speed * delta_t * math.cos(self.theta)
         delta_y = linear_speed * delta_t * math.sin(self.theta)
         delta_theta = angular_speed * delta_t
