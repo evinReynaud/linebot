@@ -1,8 +1,10 @@
 import math
-import const
+import const1 as const
 import pypot.dynamixel
 import time
 import numpy as np
+
+# last version
 
 
 class Goto(object):
@@ -22,6 +24,7 @@ class Goto(object):
         self.delta_t = const.delta_t
         self.distance = 1000
         self.avance = True
+        self._turn = False
         self.motors = pypot.dynamixel.DxlIO(
             pypot.dynamixel.get_available_ports()[0])
 
@@ -33,10 +36,9 @@ class Goto(object):
         return linear_speed, angular_speed
 
     def odom(self, linear_speed, angular_speed, delta_t):
-        delta_x = linear_speed * delta_t * math.cos(self.position_theta)
-        delta_y = linear_speed * delta_t * math.sin(self.position_theta)
-        delta_theta = angular_speed * delta_t
-        return delta_x, delta_y, delta_theta
+        self.delta_theta = angular_speed * delta_t
+        self.delta_x = linear_speed * delta_t * math.cos(self.position_theta)
+        self.delta_y = linear_speed * delta_t * math.sin(self.position_theta)
 
     def tick_odom(self, delta_x, delta_y, delta_theta):
         self.position_x = self.position_x + delta_x
@@ -54,24 +56,19 @@ class Goto(object):
         self.delta_theta = 0
 
     def get_i(self, position_x, position_y, position_theta, x_target, y_target):
+        print("************ GET i *****************")
         beta = math.atan2(y_target - position_y,
                           x_target - position_x)
-        #beta = beta % (2*math.pi)
         i = beta - position_theta
 
         if (i > math.pi):
             i -= 2*math.pi
         elif (i < -math.pi):
             i += 2*math.pi
-
+        print(i)
         return i
 
     def get_linear_angular_speed(self, position_x, position_y, position_theta, x_target, y_target):
-
-        # if (x_target < position_x):  # target left
-        #    beta = math.pi
-        # else:  # target right
-        #    beta = 0
 
         i = self.get_i(position_x, position_y,
                        position_theta, x_target, y_target)
@@ -100,8 +97,9 @@ class Goto(object):
             x: linear speed in m/s
             theta: angular speed in rad/s
         """
+        self.motors.set_wheel_mode([const.left_motor_id, const.right_motor_id])
         speed_right, speed_left = self.FK(linear_speed, angular_speed)
-        print(speed_left, speed_right)
+        #print(speed_left, speed_right)
         self.set_motors_speeds(self.motors, speed_left, speed_right)
 
     def set_motors_speeds(self, motors, speed_left, speed_right):
@@ -109,67 +107,81 @@ class Goto(object):
         motors: pyplot.dynamixel.DxlIO
         left_speed: rad/s
         """
-        # motors.set_wheel_mode([left_motor_id, right_motor_id])
         motors.set_moving_speed(
             {const.left_motor_id: speed_left/const.rpm_correction, const.right_motor_id: speed_right/const.rpm_correction})
 
     def stop(self):
         self.rotate(0, 0)
-        self.motors.set_joint_mode([const.left_motor_id, const.right_motor_id])
+        #self.motors.set_joint_mode([const.left_motor_id, const.right_motor_id])
 
-    def turn(self, i):
-        self.motors.set_wheel_mode([const.left_motor_id, const.right_motor_id])
+    def turn(self, theta_target):
+        #self.motors.set_wheel_mode([const.left_motor_id, const.right_motor_id])
         t = time.time()
         self.linear_speed = 0
-        self.delta_theta = 0
+        self._turn = True
 
-        while self.avance:
+        while self._turn:
+            print("turn")
             if time.time()-t > self.delta_t:
+                print(time.time() - t)
                 t = time.time()
-                i = i-self.delta_theta
-                self.angular_speed = i*const.angular_speed_correction
-                if self.angular_speed > const.angular_speed_max:
-                    self.angular_speed = const.angular_speed_max
-                #self.get_linear_angular_speed(self.position_x, self.position_y, self.position_theta, self.x_target, self.y_target)
-                self.rotate(self.linear_speed, self.angular_speed)
-                self.odom(self.linear_speed, self.angular_speed, self.delta_t)
-                self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
-                print(self.distance)
-                if (abs(i) < 0.001):
-                    self.avance = False
+                i = theta_target - self.position_theta
+                if (i > math.pi):
+                    i -= 2*math.pi
+                elif (i < -math.pi):
+                    i += 2*math.pi
+                print(i)
+                if (abs(i) < 0.03):
+                    self._turn = False
+                    print("================= arret   TURN ===============")
                     self.stop()
-        self.avance = True
+                else:
+                    self.angular_speed = i*const.angular_speed_correction
+                    if self.angular_speed > const.angular_speed_max:
+                        self.angular_speed = const.angular_speed_max
+                        print("speed and max")
+                    if self.angular_speed < const.angular_speed_min:
+                        self.angular_speed = const.angular_speed_min
+                        print("speed and min")
+
+                    self.rotate(self.linear_speed, self.angular_speed)
+                    self.odom(self.linear_speed,
+                              self.angular_speed, self.delta_t)
+                    self.tick_odom(self.delta_x, self.delta_y,
+                                   self.delta_theta)
+
+        self.stop()
 
     def run(self):
-        self.motors.set_wheel_mode([const.left_motor_id, const.right_motor_id])
+
         t = time.time()
         i = self.get_i(self.position_x, self.position_y,
                        self.position_theta, self.x_target, self.y_target)
         self.turn(i)
         while self.avance:
+            # print("run")
             if time.time()-t > self.delta_t:
                 t = time.time()
                 self.get_linear_angular_speed(
                     self.position_x, self.position_y, self.position_theta, self.x_target, self.y_target)
+                #speed_right,speed_left = self.FK(self.linear_speed,self.angular_speed)
                 self.rotate(self.linear_speed, self.angular_speed)
                 self.odom(self.linear_speed, self.angular_speed, self.delta_t)
+                # self.odom3(speed_right/const.rpm_correction,speed_left/const.rpm_correction,const.delta_t)
                 self.tick_odom(self.delta_x, self.delta_y, self.delta_theta)
+                print("************ distance **************")
                 print(self.distance)
-                if (self.distance < 0.02):
+                if (self.distance < 0.005):
                     self.avance = False
                     self.stop()
-        self.avance = True
-        i = const.theta_target - self.position_theta
+                    print("================= arret   GO ===============")
 
-        if (i > math.pi):
-            i -= 2*math.pi
-        elif (i < -math.pi):
-            i += 2*math.pi
-
-        self.turn(i)
-        
+        self.stop()
+        self.turn(const.theta_target)
+        self.stop()
 
 
 if __name__ == '__main__':
     goto = Goto()
+    print("*********** START *********************")
     goto.run()
