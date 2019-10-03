@@ -20,7 +20,7 @@ class Goto(object):
         self.delta_t = const.delta_t
         self.distance = 1000
         self.avance = True
-
+        self.motors = pypot.dynamixel.DxlIO(pypot.dynamixel.get_available_ports()[0])
     def reset(self):
         self.position_x = 0
         self.position_y = 0
@@ -51,7 +51,6 @@ class Goto(object):
         angular_speed = i * 0.3
         self.distance = math.sqrt((x_target - position_x)*(x_target - position_x)+(y_target-position_y)*(y_target-position_y))
         linear_speed = self.distance * 0.3
-
         self.linear_speed = linear_speed
         self.angular_speed = angular_speed
 
@@ -92,8 +91,7 @@ class Goto(object):
         while self.avance:
             if time.time()-t > self.delta_t:
                 t = time.time()
-                self.get_linear_angular_speed(
-                    self.position_x, self.position_y, self.theta, self.x_target, self.y_target)
+                self.get_linear_angular_speed(self.position_x, self.position_y, self.theta, self.x_target, self.y_target)
                 self.rotate(self.linear_speed, self.angular_speed)
                 delta_x, delta_y,delta_theta = odom.odom(self.linear_speed, self.angular_speed, self.delta_t)
                 odom.tick_odom(delta_x,delta_y,delta_theta)
